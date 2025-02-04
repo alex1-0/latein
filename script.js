@@ -7,20 +7,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const vokabelList = document.getElementById('vokabel-list');
     const themeToggle = document.getElementById('theme-toggle');
 
-    let vokabeln = [];
+    let vokabeln = JSON.parse(localStorage.getItem('vokabeln')) || [];
 
-    // Vokabeln von GitHub laden
-    async function loadVokabeln() {
-        try {
-            const response = await fetch('https://raw.githubusercontent.com/alex1-0/alex1-0.github.io/main/latein/vokabeln.json');
-            vokabeln = await response.json();
-            renderVokabeln();
-        } catch (error) {
-            console.error("Fehler beim Laden der Vokabeln:", error);
+    // Beim Laden der Seite die gespeicherten Vokabeln anzeigen
+    renderVokabeln();
+
+    vokabelInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            stammformenInput.focus();
         }
-    }
+    });
 
-    loadVokabeln();
+    stammformenInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            uebersetzungenInput.focus();
+        }
+    });
+
+    uebersetzungenInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            saveVokabel();
+        }
+    });
 
     saveBtn.addEventListener('click', saveVokabel);
 
@@ -31,13 +39,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (vokabel && stammformen && uebersetzungen) {
             vokabeln.push({ vokabel, stammformen, uebersetzungen });
-            updateVokabelnJson();
+            localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Speichern in LocalStorage
             vokabelInput.value = '';
             stammformenInput.value = '';
             uebersetzungenInput.value = '';
+            vokabelInput.focus();
             renderVokabeln();
         }
     }
+
+    searchInput.addEventListener('input', function() {
+        renderVokabeln();
+    });
 
     function renderVokabeln() {
         const searchTerm = searchInput.value.toLowerCase();
@@ -64,35 +77,22 @@ document.addEventListener('DOMContentLoaded', function() {
         stammformenInput.value = vokabel.stammformen;
         uebersetzungenInput.value = vokabel.uebersetzungen;
         vokabeln.splice(index, 1);
-        updateVokabelnJson();
+        localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Aktualisieren in LocalStorage
         renderVokabeln();
     };
 
     window.deleteVokabel = function(index) {
         vokabeln.splice(index, 1);
-        updateVokabelnJson();
+        localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Aktualisieren in LocalStorage
         renderVokabeln();
     };
 
-    function updateVokabelnJson() {
-        fetch('https://api.github.com/repos/alex1-0/alex1-0.github.io/contents/latein/vokabeln.json', {
-            method: 'PUT',
-            headers: {
-                'Authorization': 'token GITHUB_PERSONAL_ACCESS_TOKEN',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: "Update vokabeln.json",
-                content: btoa(JSON.stringify(vokabeln, null, 2)),
-                sha: 'LATEST_SHA' // Wird durch GitHub Actions ersetzt
-            })
-        }).then(response => response.json())
-          .then(data => console.log("Vokabeln aktualisiert:", data))
-          .catch(error => console.error("Fehler beim Speichern:", error));
-    }
-
     themeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark-mode');
-        themeToggle.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+        if (document.body.classList.contains('dark-mode')) {
+            themeToggle.textContent = 'Light Mode';
+        } else {
+            themeToggle.textContent = 'Dark Mode';
+        }
     });
 });
