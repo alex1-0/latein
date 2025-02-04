@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Beim Laden der Seite Vokabeln anzeigen
     renderVokabeln(vokabeln);
 
+    // Enter-Taste in den Eingabefeldern
     vokabelInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             stammformenInput.focus();
