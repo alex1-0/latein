@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const vokabelList = document.getElementById('vokabel-list');
     const themeToggle = document.getElementById('theme-toggle');
 
-    let vokabeln = JSON.parse(localStorage.getItem('vokabeln')) || [];
+    const apiUrl = 'backend.js'; // Pfad zur backend.js-Datei
 
-    // Beim Laden der Seite die gespeicherten Vokabeln anzeigen
-    renderVokabeln();
+    // Beim Laden der Seite Vokabeln vom Server abrufen
+    fetchVokabeln();
 
     vokabelInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -32,27 +32,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
     saveBtn.addEventListener('click', saveVokabel);
 
-    function saveVokabel() {
+    async function fetchVokabeln() {
+        try {
+            const response = await fetch(`${apiUrl}?action=getVokabeln`);
+            const data = await response.json();
+            renderVokabeln(data);
+        } catch (error) {
+            console.error('Fehler beim Abrufen der Vokabeln:', error);
+        }
+    }
+
+    async function saveVokabel() {
         const vokabel = vokabelInput.value.trim();
         const stammformen = stammformenInput.value.trim();
         const uebersetzungen = uebersetzungenInput.value.trim();
 
         if (vokabel && stammformen && uebersetzungen) {
-            vokabeln.push({ vokabel, stammformen, uebersetzungen });
-            localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Speichern in LocalStorage
-            vokabelInput.value = '';
-            stammformenInput.value = '';
-            uebersetzungenInput.value = '';
-            vokabelInput.focus();
-            renderVokabeln();
+            try {
+                await fetch(`${apiUrl}?action=addVokabel&vokabel=${vokabel}&stammformen=${stammformen}&uebersetzungen=${uebersetzungen}`);
+                vokabelInput.value = '';
+                stammformenInput.value = '';
+                uebersetzungenInput.value = '';
+                vokabelInput.focus();
+                fetchVokabeln(); // Vokabeln neu laden
+            } catch (error) {
+                console.error('Fehler beim Speichern der Vokabel:', error);
+            }
         }
     }
 
     searchInput.addEventListener('input', function() {
-        renderVokabeln();
+        fetchVokabeln();
     });
 
-    function renderVokabeln() {
+    function renderVokabeln(vokabeln) {
         const searchTerm = searchInput.value.toLowerCase();
         const filteredVokabeln = vokabeln.filter(v => v.vokabel.toLowerCase().includes(searchTerm));
 
@@ -63,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
             vokabelItem.innerHTML = `
                 <span><strong>${v.vokabel}</strong> - ${v.stammformen} - ${v.uebersetzungen}</span>
                 <div class="actions">
-                    <button onclick="editVokabel(${index})">Bearbeiten</button>
                     <button onclick="deleteVokabel(${index})">Löschen</button>
                 </div>
             `;
@@ -71,20 +83,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    window.editVokabel = function(index) {
-        const vokabel = vokabeln[index];
-        vokabelInput.value = vokabel.vokabel;
-        stammformenInput.value = vokabel.stammformen;
-        uebersetzungenInput.value = vokabel.uebersetzungen;
-        vokabeln.splice(index, 1);
-        localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Aktualisieren in LocalStorage
-        renderVokabeln();
-    };
-
-    window.deleteVokabel = function(index) {
-        vokabeln.splice(index, 1);
-        localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Aktualisieren in LocalStorage
-        renderVokabeln();
+    window.deleteVokabel = async function(index) {
+        try {
+            await fetch(`${apiUrl}?action=deleteVokabel&id=${index}`);
+            fetchVokabeln(); // Vokabeln neu laden
+        } catch (error) {
+            console.error('Fehler beim Löschen der Vokabel:', error);
+        }
     };
 
     themeToggle.addEventListener('click', function() {
