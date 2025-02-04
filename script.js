@@ -6,11 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search');
     const vokabelList = document.getElementById('vokabel-list');
     const themeToggle = document.getElementById('theme-toggle');
+    const exportBtn = document.getElementById('export-btn');
+    const importBtn = document.getElementById('import-btn');
+    const importFile = document.getElementById('import-file');
 
     let vokabeln = JSON.parse(localStorage.getItem('vokabeln')) || [];
 
-    // Beim Laden der Seite die gespeicherten Vokabeln anzeigen
-    renderVokabeln();
+    // Beim Laden der Seite Vokabeln anzeigen
+    renderVokabeln(vokabeln);
 
     vokabelInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -32,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     saveBtn.addEventListener('click', saveVokabel);
 
+    // Neue Vokabel speichern
     function saveVokabel() {
         const vokabel = vokabelInput.value.trim();
         const stammformen = stammformenInput.value.trim();
@@ -39,60 +43,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (vokabel && stammformen && uebersetzungen) {
             vokabeln.push({ vokabel, stammformen, uebersetzungen });
-            localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Speichern in LocalStorage
+            localStorage.setItem('vokabeln', JSON.stringify(vokabeln));
             vokabelInput.value = '';
             stammformenInput.value = '';
             uebersetzungenInput.value = '';
             vokabelInput.focus();
-            renderVokabeln();
+            renderVokabeln(vokabeln);
         }
     }
 
-    searchInput.addEventListener('input', function() {
-        renderVokabeln();
-    });
-
-    function renderVokabeln() {
+    // Vokabeln anzeigen
+    function renderVokabeln(vokabeln) {
         const searchTerm = searchInput.value.toLowerCase();
-        const filteredVokabeln = vokabeln.filter(v => v.vokabel.toLowerCase().includes(searchTerm));
-
-        vokabelList.innerHTML = '';
-        filteredVokabeln.forEach((v, index) => {
-            const vokabelItem = document.createElement('div');
-            vokabelItem.className = 'vokabel-item';
-            vokabelItem.innerHTML = `
-                <span><strong>${v.vokabel}</strong> - ${v.stammformen} - ${v.uebersetzungen}</span>
-                <div class="actions">
-                    <button onclick="editVokabel(${index})">Bearbeiten</button>
-                    <button onclick="deleteVokabel(${index})">Löschen</button>
-                </div>
-            `;
-            vokabelList.appendChild(vokabelItem);
-        });
-    }
-
-    window.editVokabel = function(index) {
-        const vokabel = vokabeln[index];
-        vokabelInput.value = vokabel.vokabel;
-        stammformenInput.value = vokabel.stammformen;
-        uebersetzungenInput.value = vokabel.uebersetzungen;
-        vokabeln.splice(index, 1);
-        localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Aktualisieren in LocalStorage
-        renderVokabeln();
-    };
-
-    window.deleteVokabel = function(index) {
-        vokabeln.splice(index, 1);
-        localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Aktualisieren in LocalStorage
-        renderVokabeln();
-    };
-
-    themeToggle.addEventListener('click', function() {
-        document.body.classList.toggle('dark-mode');
-        if (document.body.classList.contains('dark-mode')) {
-            themeToggle.textContent = 'Light Mode';
-        } else {
-            themeToggle.textContent = 'Dark Mode';
-        }
-    });
-});
+        const filteredVokabeln = vokabeln.filter
