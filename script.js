@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const vokabelList = document.getElementById('vokabel-list');
     const themeToggle = document.getElementById('theme-toggle');
 
-    const vokabelnFilePath = 'vokabeln.json'; // Pfad zur JSON-Datei
+    let vokabeln = JSON.parse(localStorage.getItem('vokabeln')) || [];
 
-    // Beim Laden der Seite Vokabeln vom Server abrufen
-    fetchVokabeln();
+    // Beim Laden der Seite die gespeicherten Vokabeln anzeigen
+    renderVokabeln();
 
     vokabelInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -32,55 +32,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     saveBtn.addEventListener('click', saveVokabel);
 
-    // Vokabeln vom Server abrufen
-    async function fetchVokabeln() {
-        try {
-            const response = await fetch(vokabelnFilePath);
-            const data = await response.json();
-            renderVokabeln(data);
-        } catch (error) {
-            console.error('Fehler beim Abrufen der Vokabeln:', error);
-        }
-    }
-
-    // Neue Vokabel speichern
-    async function saveVokabel() {
+    function saveVokabel() {
         const vokabel = vokabelInput.value.trim();
         const stammformen = stammformenInput.value.trim();
         const uebersetzungen = uebersetzungenInput.value.trim();
 
         if (vokabel && stammformen && uebersetzungen) {
-            try {
-                // Aktuelle Vokabeln laden
-                const response = await fetch(vokabelnFilePath);
-                const vokabeln = await response.json();
-
-                // Neue Vokabel hinzufügen
-                vokabeln.push({ vokabel, stammformen, uebersetzungen });
-
-                // Vokabeln zurück auf den Server speichern
-                await fetch(vokabelnFilePath, {
-                    method: 'POST', // POST-Anfrage zum Speichern
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(vokabeln),
-                });
-
-                // Felder leeren und Fokus setzen
-                vokabelInput.value = '';
-                stammformenInput.value = '';
-                uebersetzungenInput.value = '';
-                vokabelInput.focus();
-
-                // Vokabeln neu laden
-                fetchVokabeln();
-            } catch (error) {
-                console.error('Fehler beim Speichern der Vokabel:', error);
-            }
+            vokabeln.push({ vokabel, stammformen, uebersetzungen });
+            localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Speichern in LocalStorage
+            vokabelInput.value = '';
+            stammformenInput.value = '';
+            uebersetzungenInput.value = '';
+            vokabelInput.focus();
+            renderVokabeln();
         }
     }
 
-    // Vokabeln anzeigen
-    function renderVokabeln(vokabeln) {
+    searchInput.addEventListener('input', function() {
+        renderVokabeln();
+    });
+
+    function renderVokabeln() {
         const searchTerm = searchInput.value.toLowerCase();
         const filteredVokabeln = vokabeln.filter(v => v.vokabel.toLowerCase().includes(searchTerm));
 
@@ -99,61 +71,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Vokabel bearbeiten
-    window.editVokabel = async function(index) {
-        try {
-            // Aktuelle Vokabeln laden
-            const response = await fetch(vokabelnFilePath);
-            const vokabeln = await response.json();
-
-            // Vokabel bearbeiten
-            const vokabel = vokabeln[index];
-            vokabelInput.value = vokabel.vokabel;
-            stammformenInput.value = vokabel.stammformen;
-            uebersetzungenInput.value = vokabel.uebersetzungen;
-
-            // Vokabel aus der Liste entfernen
-            vokabeln.splice(index, 1);
-
-            // Vokabeln zurück auf den Server speichern
-            await fetch(vokabelnFilePath, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(vokabeln),
-            });
-
-            // Vokabeln neu laden
-            fetchVokabeln();
-        } catch (error) {
-            console.error('Fehler beim Bearbeiten der Vokabel:', error);
-        }
+    window.editVokabel = function(index) {
+        const vokabel = vokabeln[index];
+        vokabelInput.value = vokabel.vokabel;
+        stammformenInput.value = vokabel.stammformen;
+        uebersetzungenInput.value = vokabel.uebersetzungen;
+        vokabeln.splice(index, 1);
+        localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Aktualisieren in LocalStorage
+        renderVokabeln();
     };
 
-    // Vokabel löschen
-    window.deleteVokabel = async function(index) {
-        try {
-            // Aktuelle Vokabeln laden
-            const response = await fetch(vokabelnFilePath);
-            const vokabeln = await response.json();
-
-            // Vokabel löschen
-            vokabeln.splice(index, 1);
-
-            // Vokabeln zurück auf den Server speichern
-            await fetch(vokabelnFilePath, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(vokabeln),
-            });
-
-            // Vokabeln neu laden
-            fetchVokabeln();
-        } catch (error) {
-            console.error('Fehler beim Löschen der Vokabel:', error);
-        }
+    window.deleteVokabel = function(index) {
+        vokabeln.splice(index, 1);
+        localStorage.setItem('vokabeln', JSON.stringify(vokabeln)); // Aktualisieren in LocalStorage
+        renderVokabeln();
     };
 
-    // Dark Mode umschalten
     themeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark-mode');
         if (document.body.classList.contains('dark-mode')) {
