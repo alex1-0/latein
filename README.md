@@ -1,2 +1,0 @@
-# latein
-Mein Latein Wörterbuch
