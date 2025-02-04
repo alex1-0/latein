@@ -146,10 +146,10 @@ button {
 }
 
 .import-btn {
-    background-color: #28a745; /* Grün */
+    background-color: #ffc107; /* Grün */
     color: white;
 }
 
 .import-btn:hover {
-    background-color: #218838; /* Dunkleres Grün */
+    background-color: #e0a800; /* Dunkleres Grün */
 }
