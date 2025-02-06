@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportBtn = document.getElementById('export-btn');
     const importBtn = document.getElementById('import-btn');
     const importFile = document.getElementById('import-file');
+    const queryInput = document.getElementById('query-input');
+    const queryBtn = document.getElementById('query-btn');
+    const queryResult = document.getElementById('query-result');
 
     let vokabeln = JSON.parse(localStorage.getItem('vokabeln')) || [];
 
@@ -134,6 +137,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
             reader.readAsText(file);
+        }
+    });
+
+    // Suchfunktion
+    searchInput.addEventListener('input', function() {
+        renderVokabeln(vokabeln);
+    });
+
+    // Abfragefunktion
+    queryBtn.addEventListener('click', function() {
+        const queryTerm = queryInput.value.trim().toLowerCase();
+        const result = vokabeln.find(v => v.vokabel.toLowerCase() === queryTerm);
+        if (result) {
+            queryResult.innerHTML = `<strong>${result.vokabel}</strong> - ${result.stammformen} - ${result.uebersetzungen}`;
+        } else {
+            queryResult.innerHTML = 'Vokabel nicht gefunden.';
         }
     });
 });
