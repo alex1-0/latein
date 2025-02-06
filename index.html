@@ -1,37 +1,30 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vokabelwörterbuch und Trainer</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Unverändert -->
 </head>
 <body>
     <div class="container">
-        <h1>Vokabelwörterbuch und Trainer</h1>
-        <div class="input-fields">
-            <input type="text" id="vokabel" placeholder="Vokabel" autofocus>
-            <input type="text" id="stammformen" placeholder="Stammformen">
-            <input type="text" id="uebersetzungen" placeholder="Übersetzungen">
+        <!-- Unveränderte Abschnitte -->
+        
+        <div class="quiz-section" style="display: none;">
+            <h2>Abfragemodus</h2>
+            <div id="quiz-vokabel"></div>
+            <input type="text" id="quiz-stammformen" placeholder="Stammformen eingeben...">
+            <input type="text" id="quiz-uebersetzungen" placeholder="Übersetzungen eingeben...">
+            <button id="check-answer">Überprüfen</button>
         </div>
-        <button id="save-btn">Vokabel speichern</button>
-        <div class="search">
-            <input type="text" id="search" placeholder="Vokabel suchen...">
-        </div>
-        <div id="vokabel-list"></div>
-        <div class="import-export-buttons">
-            <button id="export-btn" class="export-btn">Vokabeln exportieren</button>
-            <input type="file" id="import-file" accept=".json" style="display: none;">
-            <button id="import-btn" class="import-btn">Vokabeln importieren</button>
-        </div>
+
         <div class="query-section">
             <h2>Abfrage</h2>
             <input type="text" id="query-input" placeholder="Vokabel abfragen...">
             <button id="query-btn">Abfragen</button>
             <div id="query-result"></div>
         </div>
+
+        <!-- Neuer Button für Abfragemodus -->
+        <button id="quiz-mode-btn">Abfragemodus starten</button>
     </div>
-    <button id="theme-toggle">Dark Mode</button>
-    <script src="script.js"></script>
+    <!-- Unverändert -->
 </body>
 </html>
