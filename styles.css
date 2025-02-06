@@ -137,7 +137,7 @@ button {
 }
 
 .export-btn {
-    background-color: #007bff; /* Blau */
+    background-color: #0DA920; /* Blau */
     color: white;
 }
 
@@ -146,10 +146,10 @@ button {
 }
 
 .import-btn {
-    background-color: #ffc107; /* Grün */
+    background-color: #08951A; /* Grün */
     color: white;
 }
 
 .import-btn:hover {
-    background-color: #e0a800; /* Dunkleres Grün */
+    background-color: #08951A; /* Dunkleres Grün */
 }
