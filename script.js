@@ -1,63 +1,131 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Vorhandene Variablen
-    const quizModeBtn = document.getElementById('quiz-mode-btn');
-    const quizSection = document.querySelector('.quiz-section');
-    const quizVokabel = document.getElementById('quiz-vokabel');
-    const quizStamm = document.getElementById('quiz-stammformen');
-    const quizUebersetzung = document.getElementById('quiz-uebersetzungen');
-    const checkAnswerBtn = document.getElementById('check-answer');
-    let currentQuiz = null;
+    const latinWordInput = document.getElementById('latin-word');
+    const stemFormsInput = document.getElementById('stem-forms');
+    const translationsInput = document.getElementById('translations');
+    const saveWordButton = document.getElementById('save-word');
+    const searchInput = document.getElementById('search');
+    const vocabularyList = document.getElementById('vocabulary-list');
+    const queryLatinWordInput = document.getElementById('query-latin-word');
+    const queryStemFormsInput = document.getElementById('query-stem-forms');
+    const queryTranslationsInput = document.getElementById('query-translations');
+    const checkAnswerButton = document.getElementById('check-answer');
+    const resultDiv = document.getElementById('result');
 
-    // 1. Suchfunktion korrigieren
-    function renderVokabeln(vokabeln) {
-        const searchTerm = searchInput.value.toLowerCase();
-        const filteredVokabeln = vokabeln.filter(v => 
-            v.vokabel.toLowerCase().startsWith(searchTerm) // startsWith statt includes
-        );
-        // Rest unverändert
+    let vocabulary = [];
+
+    // Navigation zwischen den Feldern mit Enter
+    latinWordInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            stemFormsInput.focus();
+        }
+    });
+
+    stemFormsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            translationsInput.focus();
+        }
+    });
+
+    translationsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            saveWord();
+        }
+    });
+
+    // Vokabel speichern
+    function saveWord() {
+        const latinWord = latinWordInput.value.trim();
+        const stemForms = stemFormsInput.value.trim();
+        const translations = translationsInput.value.trim();
+
+        if (latinWord && stemForms && translations) {
+            vocabulary.push({ latinWord, stemForms, translations });
+            displayVocabulary();
+            latinWordInput.value = '';
+            stemFormsInput.value = '';
+            translationsInput.value = '';
+            latinWordInput.focus();
+        }
     }
 
-    // 2. Abfragemodus
-    quizModeBtn.addEventListener('click', function() {
-        if (quizSection.style.display === 'none') {
-            // Starte Abfragemodus
-            currentQuiz = vokabeln[Math.floor(Math.random() * vokabeln.length)];
-            quizVokabel.textContent = currentQuiz.vokabel;
-            quizStamm.value = '';
-            quizUebersetzung.value = '';
-            quizSection.style.display = 'block';
-            quizModeBtn.textContent = 'Zurück zum Wörterbuch';
+    saveWordButton.addEventListener('click', saveWord);
+
+    // Vokabeln anzeigen
+    function displayVocabulary() {
+        vocabularyList.innerHTML = '';
+        vocabulary.forEach((word, index) => {
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'vocabulary-item';
+            wordDiv.innerHTML = `
+                <strong>${word.latinWord}</strong>: ${word.stemForms} - ${word.translations}
+            `;
+            vocabularyList.appendChild(wordDiv);
+        });
+    }
+
+    // Live-Suche
+    searchInput.addEventListener('input', function() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const filteredVocabulary = vocabulary.filter(word => 
+            word.latinWord.toLowerCase().includes(searchTerm) || 
+            word.stemForms.toLowerCase().includes(searchTerm) || 
+            word.translations.toLowerCase().includes(searchTerm)
+        );
+        displayFilteredVocabulary(filteredVocabulary);
+    });
+
+    function displayFilteredVocabulary(filteredVocabulary) {
+        vocabularyList.innerHTML = '';
+        filteredVocabulary.forEach((word, index) => {
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'vocabulary-item';
+            wordDiv.innerHTML = `
+                <strong>${word.latinWord}</strong>: ${word.stemForms} - ${word.translations}
+            `;
+            vocabularyList.appendChild(wordDiv);
+        });
+    }
+
+    // Abfrage
+    let currentWordIndex = 0;
+
+    function nextWord() {
+        if (vocabulary.length > 0) {
+            currentWordIndex = Math.floor(Math.random() * vocabulary.length);
+            queryLatinWordInput.value = vocabulary[currentWordIndex].latinWord;
+            queryStemFormsInput.value = '';
+            queryTranslationsInput.value = '';
+            resultDiv.textContent = '';
+            queryStemFormsInput.focus();
+        }
+    }
+
+    checkAnswerButton.addEventListener('click', function() {
+        const stemForms = queryStemFormsInput.value.trim();
+        const translations = queryTranslationsInput.value.trim();
+        const correctStemForms = vocabulary[currentWordIndex].stemForms;
+        const correctTranslations = vocabulary[currentWordIndex].translations;
+
+        if (stemForms === correctStemForms && translations === correctTranslations) {
+            resultDiv.textContent = 'Richtig!';
+            resultDiv.style.color = 'green';
         } else {
-            // Beende Abfragemodus
-            quizSection.style.display = 'none';
-            quizModeBtn.textContent = 'Abfragemodus starten';
+            resultDiv.textContent = 'Falsch!';
+            resultDiv.style.color = 'red';
         }
     });
 
-    checkAnswerBtn.addEventListener('click', function() {
-        const isCorrect = 
-            quizStamm.value.trim() === currentQuiz.stammformen &&
-            quizUebersetzung.value.trim() === currentQuiz.uebersetzungen;
-        
-        alert(isCorrect ? 'Richtig! 🎉' : 'Leider falsch. 😢');
-    });
-
-    // 3. Query-Button Anpassung
-    let isQueryMode = false;
-    queryBtn.addEventListener('click', function() {
-        if (!isQueryMode) {
-            // Führe Abfrage durch
-            const queryTerm = queryInput.value.trim().toLowerCase();
-            const result = vokabeln.find(v => v.vokabel.toLowerCase() === queryTerm);
-            // ... (existierende Abfragelogik)
-            queryBtn.textContent = 'Zurück';
-            isQueryMode = true;
-        } else {
-            // Zurück zur normalen Ansicht
-            queryInput.value = '';
-            queryResult.innerHTML = '';
-            queryBtn.textContent = 'Abfragen';
-            isQueryMode = false;
+    queryStemFormsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            queryTranslationsInput.focus();
         }
     });
+
+    queryTranslationsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            checkAnswerButton.click();
+        }
+    });
+
+    nextWord();
 });
