@@ -7,8 +7,14 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="header">
+        <button id="toggle-dark-mode">Dark Mode</button>
+        <button id="show-dictionary">Wörterbuch</button>
+        <button id="show-query">Abfrage</button>
+    </div>
+
     <div class="container">
-        <div class="section">
+        <div class="section" id="dictionary-section">
             <h2>Wörterbuch</h2>
             <div class="input-group">
                 <label for="latin-word">Lateinisches Wort:</label>
@@ -30,7 +36,7 @@
             <div id="vocabulary-list"></div>
         </div>
 
-        <div class="section">
+        <div class="section" id="query-section" style="display: none;">
             <h2>Abfrage</h2>
             <div class="input-group">
                 <label for="query-latin-word">Lateinisches Wort:</label>
