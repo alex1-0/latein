@@ -9,14 +9,18 @@ body {
 
 .header {
     display: flex;
-    justify-content: flex-start; /* Dark Mode Button ganz links */
+    align-items: center;
     padding: 10px;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.header-spacer {
+    flex-grow: 1; /* Lücke zwischen den Buttons */
+}
+
 .header button {
-    margin-right: 10px; /* Abstand zwischen den Buttons */
+    margin-left: 10px;
     padding: 10px 20px;
     background-color: #28a745;
     color: #fff;
@@ -69,7 +73,7 @@ label {
 }
 
 .search-group {
-    margin-top: 30px; /* Größerer Abstand zum "Speichern"-Button */
+    margin-top: 30px;
 }
 
 .search-field {
