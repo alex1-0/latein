@@ -1,9 +1,9 @@
 // Supabase Initialisierung
-const supabaseUrl = 'https://idctfmiogiwvoeycpeex.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkY3RmbWlvZ2l3dm9leWNwZWV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxMzY0NzIsImV4cCI6MjA1NDcxMjQ3Mn0.hlArMKgccYDtZJcgjjvhU1yeu_hWY1soYZD8lKLDL10';
+const supabaseUrl = 'https://idctfmiogiwvoeycpeex.supabase.co'; // Ersetze dies durch deine Supabase-URL
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkY3RmbWlvZ2l3dm9leWNwZWV4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTEzNjQ3MiwiZXhwIjoyMDU0NzEyNDcyfQ.d3i7NzDNv7cJJ3MqGkIBzL3v3mKMaGvOT4aaO5IdKF4'; // Ersetze dies durch deinen Supabase-API-Key
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const latinWordInput = document.getElementById('latin-word');
     const stemFormsInput = document.getElementById('stem-forms');
     const translationsInput = document.getElementById('translations');
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleDarkModeButton.textContent = isDarkMode ? 'Light Mode' : 'Dark Mode';
 
     // Dark Mode umschalten
-    toggleDarkModeButton.addEventListener('click', function() {
+    toggleDarkModeButton.addEventListener('click', function () {
         isDarkMode = !isDarkMode;
         document.body.classList.toggle('dark-mode', isDarkMode);
         toggleDarkModeButton.textContent = isDarkMode ? 'Light Mode' : 'Dark Mode';
@@ -37,29 +37,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Abschnitte wechseln
-    showDictionaryButton.addEventListener('click', function() {
+    showDictionaryButton.addEventListener('click', function () {
         dictionarySection.style.display = 'block';
         querySection.style.display = 'none';
     });
 
-    showQueryButton.addEventListener('click', function() {
+    showQueryButton.addEventListener('click', function () {
         dictionarySection.style.display = 'none';
         querySection.style.display = 'block';
         nextWord();
     });
 
-    // Vokabeln aus der Datenbank laden
-    async function loadVocabulary() {
-        const { data, error } = await supabase
-            .from('vocabulary')
-            .select('*');
-        if (error) {
-            console.error('Fehler beim Laden der Vokabeln:', error);
-        } else {
-            vocabulary = data;
-            displayVocabulary();
+    // Navigation zwischen den Feldern mit Enter
+    latinWordInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            stemFormsInput.focus();
         }
-    }
+    });
+
+    stemFormsInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            translationsInput.focus();
+        }
+    });
+
+    translationsInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveWord();
+        }
+    });
 
     // Vokabel speichern
     async function saveWord() {
@@ -70,11 +79,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (latinWord && stemForms && translations) {
             const { data, error } = await supabase
                 .from('vocabulary')
-                .insert([{ latin_word: latinWord, stem_forms: stemForms, translations: translations }]);
+                .insert([{ latin_word: latinWord, stem_forms: stemForms, translations: translations }])
+                .select();
+
             if (error) {
                 console.error('Fehler beim Speichern der Vokabel:', error);
             } else {
-                vocabulary.push({ latin_word: latinWord, stem_forms: stemForms, translations: translations });
+                vocabulary.push(data[0]); // Füge die gespeicherte Vokabel hinzu
                 displayVocabulary();
                 latinWordInput.value = '';
                 stemFormsInput.value = '';
@@ -89,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Vokabeln anzeigen
     function displayVocabulary() {
         vocabularyList.innerHTML = '';
-        vocabulary.forEach((word, index) => {
+        vocabulary.forEach((word) => {
             const wordDiv = document.createElement('div');
             wordDiv.className = 'vocabulary-item';
             wordDiv.innerHTML = `
@@ -100,11 +111,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Live-Suche
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
         const searchTerm = searchInput.value.trim().toLowerCase();
-        const filteredVocabulary = vocabulary.filter(word => 
-            word.latin_word.toLowerCase().includes(searchTerm) || 
-            word.stem_forms.toLowerCase().includes(searchTerm) || 
+        const filteredVocabulary = vocabulary.filter(word =>
+            word.latin_word.toLowerCase().includes(searchTerm) ||
+            word.stem_forms.toLowerCase().includes(searchTerm) ||
             word.translations.toLowerCase().includes(searchTerm)
         );
         displayFilteredVocabulary(filteredVocabulary);
@@ -112,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayFilteredVocabulary(filteredVocabulary) {
         vocabularyList.innerHTML = '';
-        filteredVocabulary.forEach((word, index) => {
+        filteredVocabulary.forEach((word) => {
             const wordDiv = document.createElement('div');
             wordDiv.className = 'vocabulary-item';
             wordDiv.innerHTML = `
@@ -136,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    checkAnswerButton.addEventListener('click', function() {
+    checkAnswerButton.addEventListener('click', function () {
         const stemForms = queryStemFormsInput.value.trim();
         const translations = queryTranslationsInput.value.trim();
         const correctStemForms = vocabulary[currentWordIndex].stem_forms;
@@ -150,6 +161,34 @@ document.addEventListener('DOMContentLoaded', function() {
             resultDiv.style.color = 'red';
         }
     });
+
+    queryStemFormsInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            queryTranslationsInput.focus();
+        }
+    });
+
+    queryTranslationsInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            checkAnswerButton.click();
+        }
+    });
+
+    // Vokabeln beim Laden der Seite abrufen
+    async function loadVocabulary() {
+        const { data, error } = await supabase
+            .from('vocabulary')
+            .select('*');
+
+        if (error) {
+            console.error('Fehler beim Laden der Vokabeln:', error);
+        } else {
+            vocabulary = data;
+            displayVocabulary();
+        }
+    }
 
     // Initialisierung
     loadVocabulary();
