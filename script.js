@@ -22,10 +22,12 @@ const queryLatinWordInput = document.getElementById('queryLatinWord');
 const queryStemFormsInput = document.getElementById('queryStemForms');
 const queryTranslationsInput = document.getElementById('queryTranslations');
 const checkAnswerButton = document.getElementById('checkAnswer');
+const nextQuestionButton = document.getElementById('nextQuestion');
 const resultDiv = document.getElementById('result');
 const toggleDarkModeButton = document.getElementById('toggleDarkMode');
 
 let vocabulary = [];
+let currentWord = null;
 
 // Dark Mode
 const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -79,7 +81,14 @@ queryStemFormsInput.addEventListener('keydown', (e) => {
 });
 
 queryTranslationsInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') checkAnswer();
+    if (e.key === 'Enter') {
+        checkAnswer();
+        setTimeout(() => {
+            if (e.key === 'Enter') {
+                generateQuery();
+            }
+        }, 100);
+    }
 });
 
 // Vokabeln laden
@@ -156,8 +165,8 @@ async function deleteWord(id) {
 
 // Abfrage generieren
 function generateQuery() {
-    const randomWord = vocabulary[Math.floor(Math.random() * vocabulary.length)];
-    queryLatinWordInput.value = randomWord.latin;
+    currentWord = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+    queryLatinWordInput.value = currentWord.latin;
     queryStemFormsInput.value = '';
     queryTranslationsInput.value = '';
     resultDiv.textContent = '';
@@ -165,11 +174,9 @@ function generateQuery() {
 
 // Antwort überprüfen
 function checkAnswer() {
-    const latin = queryLatinWordInput.value.trim();
     const stem = queryStemFormsInput.value.trim();
     const translation = queryTranslationsInput.value.trim();
-    const word = vocabulary.find((w) => w.latin === latin);
-    if (word && word.stem === stem && word.translation === translation) {
+    if (currentWord && currentWord.stem === stem && currentWord.translation === translation) {
         resultDiv.textContent = 'Richtig!';
         resultDiv.style.color = 'green';
     } else {
@@ -177,6 +184,9 @@ function checkAnswer() {
         resultDiv.style.color = 'red';
     }
 }
+
+// Nächste Frage
+nextQuestionButton.addEventListener('click', generateQuery);
 
 // Event-Listener
 saveWordButton.addEventListener('click', saveWord);
