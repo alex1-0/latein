@@ -1,45 +1,51 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wörterbuch und Abfrage</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokabeltrainer</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <button id="darkModeToggle">Dark Mode</button>
-      <button id="switchToDictionary">Wörterbuch</button>
-      <button id="switchToQuiz">Abfrage</button>
+<body class="dark-mode">
+    <!-- Navigationsleiste -->
+    <nav class="navbar">
+        <div class="nav-buttons">
+            <button id="toggleDictionary">Wörterbuch</button>
+            <button id="toggleQuery">Abfrage</button>
+        </div>
+        <button id="toggleDarkMode" class="dark-mode-toggle">🌞</button>
+    </nav>
+
+    <!-- Container für die Abschnitte -->
+    <div class="container">
+        <!-- Wörterbuch -->
+        <div id="dictionarySection" class="section">
+            <h2>Wörterbuch</h2>
+            <div class="input-group">
+                <input type="text" id="latinWord" placeholder="Lateinisches Wort">
+                <input type="text" id="stemForms" placeholder="Stammformen">
+                <input type="text" id="translations" placeholder="Übersetzungen">
+            </div>
+            <button id="saveWord">Vokabel speichern</button>
+            <input type="text" id="search" placeholder="Suche...">
+            <div id="vocabularyList"></div>
+        </div>
+
+        <!-- Abfrage -->
+        <div id="querySection" class="section hidden">
+            <h2>Abfrage</h2>
+            <div class="input-group">
+                <input type="text" id="queryLatinWord" placeholder="Lateinisches Wort" disabled>
+                <input type="text" id="queryStemForms" placeholder="Stammformen">
+                <input type="text" id="queryTranslations" placeholder="Übersetzungen">
+            </div>
+            <button id="checkAnswer">Antwort überprüfen</button>
+            <div id="result"></div>
+        </div>
     </div>
 
-    <!-- Wörterbuch -->
-    <div id="dictionarySection" class="section">
-      <h2>Wörterbuch</h2>
-      <div class="input-group">
-        <input type="text" id="latinWord" placeholder="Lateinisches Wort">
-        <input type="text" id="stemForms" placeholder="Stammformen">
-        <input type="text" id="translations" placeholder="Übersetzungen (Enter zum Speichern)">
-      </div>
-      <div class="search-group">
-        <input type="text" id="searchVocabulary" placeholder="Suche...">
-      </div>
-      <ul id="vocabularyList"></ul>
-    </div>
-
-    <!-- Abfrage -->
-    <div id="quizSection" class="section hidden">
-      <h2>Abfrage</h2>
-      <p id="quizWord">Wort: </p>
-      <div class="input-group">
-        <input type="text" id="quizStemForms" placeholder="Stammformen">
-        <input type="text" id="quizTranslations" placeholder="Übersetzungen (Enter zur Prüfung)">
-      </div>
-      <p id="quizResult"></p>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
