@@ -7,58 +7,51 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="header">
-        <button id="toggle-dark-mode">Dark Mode</button>
-        <div class="header-spacer"></div>
-        <button id="show-dictionary">Wörterbuch</button>
-        <button id="show-query">Abfrage</button>
-    </div>
-
     <div class="container">
-        <div class="section" id="dictionary-section">
+        <div class="header">
+            <button id="darkModeToggle">🌙</button>
+            <button id="switchToDictionary">Wörterbuch</button>
+            <button id="switchToQuery">Abfrage</button>
+        </div>
+        <div id="dictionarySection" class="section">
             <h2>Wörterbuch</h2>
             <div class="input-group">
-                <label for="latin-word">Lateinisches Wort:</label>
-                <input type="text" id="latin-word" class="input-field">
+                <label for="latinWord">Lateinisches Wort:</label>
+                <input type="text" id="latinWord" placeholder="Lateinisches Wort">
             </div>
             <div class="input-group">
-                <label for="stem-forms">Stammformen:</label>
-                <input type="text" id="stem-forms" class="input-field">
+                <label for="stemForms">Stammformen:</label>
+                <input type="text" id="stemForms" placeholder="Stammformen">
             </div>
             <div class="input-group">
                 <label for="translations">Übersetzungen:</label>
-                <input type="text" id="translations" class="input-field">
+                <input type="text" id="translations" placeholder="Übersetzungen">
             </div>
-            <button id="save-word">Speichern</button>
+            <button id="saveWord">Speichern</button>
             <div class="search-group">
                 <label for="search">Suche:</label>
-                <input type="text" id="search" class="search-field">
+                <input type="text" id="search" placeholder="Suche...">
             </div>
-            <div id="vocabulary-list"></div>
+            <div id="wordList"></div>
         </div>
-
-        <div class="section" id="query-section" style="display: none;">
+        <div id="querySection" class="section hidden">
             <h2>Abfrage</h2>
             <div class="input-group">
-                <label for="query-latin-word">Lateinisches Wort:</label>
-                <input type="text" id="query-latin-word" class="input-field" disabled>
+                <label for="queryLatinWord">Lateinisches Wort:</label>
+                <input type="text" id="queryLatinWord" placeholder="Lateinisches Wort">
             </div>
             <div class="input-group">
-                <label for="query-stem-forms">Stammformen:</label>
-                <input type="text" id="query-stem-forms" class="input-field">
+                <label for="queryStemForms">Stammformen:</label>
+                <input type="text" id="queryStemForms" placeholder="Stammformen">
             </div>
             <div class="input-group">
-                <label for="query-translations">Übersetzungen:</label>
-                <input type="text" id="query-translations" class="input-field">
+                <label for="queryTranslations">Übersetzungen:</label>
+                <input type="text" id="queryTranslations" placeholder="Übersetzungen">
             </div>
-            <button id="check-answer">Überprüfen</button>
+            <button id="checkAnswer">Überprüfen</button>
             <div id="result"></div>
         </div>
     </div>
-
-    <!-- Supabase-Bibliothek laden -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Dein eigener JavaScript-Code -->
     <script src="script.js"></script>
 </body>
 </html>
