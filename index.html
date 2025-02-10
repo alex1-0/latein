@@ -7,51 +7,33 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="navbar">
+        <button id="darkModeToggle">🌙 Dark Mode</button>
+        <div class="switch">
+            <button id="dictionaryBtn">📖 Wörterbuch</button>
+            <button id="quizBtn">📝 Abfrage</button>
+        </div>
+    </div>
+
     <div class="container">
-        <div class="header">
-            <button id="darkModeToggle">🌙</button>
-            <button id="switchToDictionary">Wörterbuch</button>
-            <button id="switchToQuery">Abfrage</button>
+        <div id="dictionary" class="section">
+            <h2>📖 Wörterbuch</h2>
+            <input type="text" id="latinWord" placeholder="Lateinisches Wort">
+            <input type="text" id="stems" placeholder="Stammformen">
+            <input type="text" id="translations" placeholder="Übersetzungen">
+            <input type="text" id="search" placeholder="🔍 Suche...">
+            <ul id="vocabList"></ul>
         </div>
-        <div id="dictionarySection" class="section">
-            <h2>Wörterbuch</h2>
-            <div class="input-group">
-                <label for="latinWord">Lateinisches Wort:</label>
-                <input type="text" id="latinWord" placeholder="Lateinisches Wort">
-            </div>
-            <div class="input-group">
-                <label for="stemForms">Stammformen:</label>
-                <input type="text" id="stemForms" placeholder="Stammformen">
-            </div>
-            <div class="input-group">
-                <label for="translations">Übersetzungen:</label>
-                <input type="text" id="translations" placeholder="Übersetzungen">
-            </div>
-            <button id="saveWord">Speichern</button>
-            <div class="search-group">
-                <label for="search">Suche:</label>
-                <input type="text" id="search" placeholder="Suche...">
-            </div>
-            <div id="wordList"></div>
-        </div>
-        <div id="querySection" class="section hidden">
-            <h2>Abfrage</h2>
-            <div class="input-group">
-                <label for="queryLatinWord">Lateinisches Wort:</label>
-                <input type="text" id="queryLatinWord" placeholder="Lateinisches Wort">
-            </div>
-            <div class="input-group">
-                <label for="queryStemForms">Stammformen:</label>
-                <input type="text" id="queryStemForms" placeholder="Stammformen">
-            </div>
-            <div class="input-group">
-                <label for="queryTranslations">Übersetzungen:</label>
-                <input type="text" id="queryTranslations" placeholder="Übersetzungen">
-            </div>
-            <button id="checkAnswer">Überprüfen</button>
+
+        <div id="quiz" class="section hidden">
+            <h2>📝 Abfrage</h2>
+            <div id="quizWord"></div>
+            <input type="text" id="quizStems" placeholder="Stammformen">
+            <input type="text" id="quizTranslations" placeholder="Übersetzungen">
             <div id="result"></div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
