@@ -162,3 +162,9 @@ body.light-mode .vocabulary-item {
     font-size: 18px;
     font-weight: bold;
 }
+
+#score {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
