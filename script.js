@@ -99,3 +99,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check answer
     checkAnswerButton.addEventListener('click', () => {
+        const latinWord = queryLatinWordInput.value.trim();
+        const stemForms = queryStemFormsInput.value.trim();
+        const translations = queryTranslationsInput.value.trim();
+
+        const correctWord = words.find(word => word.latinWord === latinWord);
+        if (correctWord && correctWord.stemForms === stemForms && correctWord.translations === translations) {
+            resultDiv.textContent = 'Richtig!';
+            resultDiv.style.color = 'green';
+        } else {
+            resultDiv.textContent = 'Falsch!';
+            resultDiv.style.color = 'red';
+        }
+    });
+
+    // Initial load
+    updateWordList();
+    dictionarySection.classList.add('active');
+});
