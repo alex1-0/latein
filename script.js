@@ -1,74 +1,143 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const latinInput = document.getElementById("latinWord");
-    const stemsInput = document.getElementById("stems");
-    const translationsInput = document.getElementById("translations");
-    const vocabList = document.getElementById("vocabList");
-    const searchInput = document.getElementById("search");
+// Global Variables
+let vocabulary = JSON.parse(localStorage.getItem('vocabulary')) || [];
+let darkMode = localStorage.getItem('darkMode') === 'enabled';
+
+// DOM Elements
+const dictionarySection = document.getElementById('dictionarySection');
+const quizSection = document.getElementById('quizSection');
+const darkModeToggle = document.getElementById('darkModeToggle');
+const switchToDictionary = document.getElementById('switchToDictionary');
+const switchToQuiz = document.getElementById('switchToQuiz');
+const latinWordInput = document.getElementById('latinWord');
+const stemFormsInput = document.getElementById('stemForms');
+const translationsInput = document.getElementById('translations');
+const searchVocabularyInput = document.getElementById('searchVocabulary');
+const vocabularyList = document.getElementById('vocabularyList');
+const quizWord = document.getElementById('quizWord');
+const quizStemFormsInput = document.getElementById('quizStemForms');
+const quizTranslationsInput = document.getElementById('quizTranslations');
+const quizResult = document.getElementById('quizResult');
+
+// Functions
+function renderVocabulary() {
+  vocabularyList.innerHTML = '';
+  const searchQuery = searchVocabularyInput.value.toLowerCase();
+  
+  vocabulary
+    .filter(item => item.latin.toLowerCase().includes(searchQuery))
+    .forEach((item, index) => {
+      const li = document.createElement('li');
+      li.textContent = `${item.latin} - ${item.stemForms} - ${item.translations}`;
+      
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'actions';
+      
+      const editButton = document.createElement('button');
+      editButton.textContent = 'Bearbeiten';
+      editButton.onclick = () => editVocabulary(index);
+      
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Löschen';
+      deleteButton.onclick = () => deleteVocabulary(index);
+      
+      actionsDiv.appendChild(editButton);
+      actionsDiv.appendChild(deleteButton);
+      
+      li.appendChild(actionsDiv);
+      vocabularyList.appendChild(li);
+    });
+}
+
+function saveVocabulary() {
+  const latinWord = latinWordInput.value.trim();
+  const stemForms = stemFormsInput.value.trim();
+  const translations = translationsInput.value.trim();
+  
+  if (latinWord && stemForms && translations) {
+    vocabulary.push({ latin: latinWord, stemForms, translations });
+    localStorage.setItem('vocabulary', JSON.stringify(vocabulary));
+    renderVocabulary();
     
-    let vocabData = JSON.parse(localStorage.getItem("vocabData")) || [];
+    latinWordInput.value = '';
+    stemFormsInput.value = '';
+    translationsInput.value = '';
+    latinWordInput.focus();
+  }
+}
 
-    function saveVocab() {
-        localStorage.setItem("vocabData", JSON.stringify(vocabData));
-    }
+function editVocabulary(index) {
+  const item = vocabulary[index];
+  
+  latinWordInput.value = item.latin;
+  stemFormsInput.value = item.stemForms;
+  translationsInput.value = item.translations;
 
-    function renderVocabList() {
-        vocabList.innerHTML = "";
-        vocabData.forEach((entry, index) => {
-            const li = document.createElement("li");
-            li.classList.add("vocab-item");
-            li.innerHTML = `<span>${entry.latin} - ${entry.stems} - ${entry.translations}</span>
-                            <div class="actions">
-                                <button onclick="editVocab(${index})">✏️ Bearbeiten</button>
-                                <button onclick="deleteVocab(${index})">🗑️ Löschen</button>
-                            </div>`;
-            vocabList.appendChild(li);
-        });
-    }
+  deleteVocabulary(index);
+}
 
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            if (document.activeElement === translationsInput) {
-                vocabData.push({
-                    latin: latinInput.value,
-                    stems: stemsInput.value,
-                    translations: translationsInput.value
-                });
-                saveVocab();
-                renderVocabList();
-                latinInput.value = stemsInput.value = translationsInput.value = "";
-                latinInput.focus();
-            }
-        }
-    });
+function deleteVocabulary(index) {
+  vocabulary.splice(index, 1);
+  localStorage.setItem('vocabulary', JSON.stringify(vocabulary));
+  renderVocabulary();
+}
 
-    searchInput.addEventListener("input", () => {
-        const query = searchInput.value.toLowerCase();
-        document.querySelectorAll(".vocab-item").forEach(item => {
-            item.style.display = item.textContent.toLowerCase().includes(query) ? "block" : "none";
-        });
-    });
+function toggleDarkMode() {
+  darkMode = !darkMode;
+  
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+    localStorage.setItem('darkMode', 'enabled');
+  } else {
+    document.body.classList.remove('dark-mode');
+    localStorage.setItem('darkMode', 'disabled');
+  }
+}
 
-    renderVocabList();
+// Event Listeners
+translationsInput.addEventListener('keypress', e => {
+ if (e.key === 'Enter') saveVocabulary();
 });
 
-function editVocab(index) {
-    const newWord = prompt("Neues lateinisches Wort:", vocabData[index].latin);
-    if (newWord) vocabData[index].latin = newWord;
-    saveVocab();
-    renderVocabList();
-}
+searchVocabularyInput.addEventListener('input', renderVocabulary);
 
-function deleteVocab(index) {
-    vocabData.splice(index, 1);
-    saveVocab();
-    renderVocabList();
-}
+darkModeToggle.addEventListener('click', toggleDarkMode);
 
-document.getElementById("darkModeToggle").addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+switchToDictionary.addEventListener('click', () => {
+ dictionarySection.classList.remove('hidden');
+ quizSection.classList.add('hidden');
 });
 
-if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark-mode");
-}
+switchToQuiz.addEventListener('click', () => {
+ dictionarySection.classList.add('hidden');
+ quizSection.classList.remove('hidden');
+
+ // Load random word for quiz
+ if (vocabulary.length > 0) {
+   const randomIndex = Math.floor(Math.random() * vocabulary.length);
+   const wordForQuiz = vocabulary[randomIndex];
+   quizWord.textContent = `Wort: ${wordForQuiz.latin}`;
+   quizStemFormsInput.dataset.correctAnswer =
+     wordForQuiz.stemForms.toLowerCase();
+   quizTranslationsInput.dataset.correctAnswer =
+     wordForQuiz.translations.toLowerCase();
+ }
+});
+
+quizTranslationsInput.addEventListener("keypress", (e) => {
+ if (e.key === "Enter") {
+   const correctStem =
+     quizStemFormsInput.dataset.correctAnswer ===
+     quizStemFormsInput.value.toLowerCase();
+   const correctTranslation =
+     quizTranslationsInput.dataset.correctAnswer ===
+     quizTranslationsInput.value.toLowerCase();
+
+   quizResult.textContent =
+     correctStem && correctTranslation ? "Richtig!" : "Falsch!";
+ }
+});
+
+// Initial Setup
+if (darkMode) toggleDarkMode();
+
+renderVocabulary();
