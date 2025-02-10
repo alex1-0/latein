@@ -22,12 +22,14 @@ const queryLatinWordInput = document.getElementById('queryLatinWord');
 const queryStemFormsInput = document.getElementById('queryStemForms');
 const queryTranslationsInput = document.getElementById('queryTranslations');
 const checkAnswerButton = document.getElementById('checkAnswer');
-const nextQuestionButton = document.getElementById('nextQuestion');
 const resultDiv = document.getElementById('result');
+const scoreDiv = document.getElementById('score');
 const toggleDarkModeButton = document.getElementById('toggleDarkMode');
 
 let vocabulary = [];
 let currentWord = null;
+let correctAnswers = 0;
+let wrongAnswers = 0;
 
 // Dark Mode
 const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -82,13 +84,24 @@ queryStemFormsInput.addEventListener('keydown', (e) => {
 
 queryTranslationsInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-        checkAnswer();
-        setTimeout(() => {
-            if (e.key === 'Enter') {
-                generateQuery();
-            }
-        }, 100);
+        if (resultDiv.textContent === '') {
+            checkAnswer();
+        } else {
+            generateQuery();
+            queryStemFormsInput.focus();
+        }
     }
+});
+
+// Suche
+searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim().toLowerCase();
+    const filtered = vocabulary.filter(word => 
+        word.latin.toLowerCase().includes(query) || 
+        word.stem.toLowerCase().includes(query) || 
+        word.translation.toLowerCase().includes(query)
+    );
+    renderVocabulary(filtered);
 });
 
 // Vokabeln laden
@@ -101,7 +114,7 @@ async function loadVocabulary() {
         return;
     }
     vocabulary = data;
-    renderVocabulary();
+    renderVocabulary(vocabulary);
 }
 
 // Vokabel speichern
@@ -125,9 +138,9 @@ async function saveWord() {
 }
 
 // Vokabeln anzeigen
-function renderVocabulary() {
+function renderVocabulary(filteredVocabulary = vocabulary) {
     vocabularyList.innerHTML = '';
-    vocabulary.forEach((word) => {
+    filteredVocabulary.forEach((word) => {
         const item = document.createElement('div');
         item.className = 'vocabulary-item';
         item.innerHTML = `
@@ -179,14 +192,19 @@ function checkAnswer() {
     if (currentWord && currentWord.stem === stem && currentWord.translation === translation) {
         resultDiv.textContent = 'Richtig!';
         resultDiv.style.color = 'green';
+        correctAnswers++;
     } else {
         resultDiv.textContent = 'Falsch!';
         resultDiv.style.color = 'red';
+        wrongAnswers++;
     }
+    updateScore();
 }
 
-// Nächste Frage
-nextQuestionButton.addEventListener('click', generateQuery);
+// Score aktualisieren
+function updateScore() {
+    scoreDiv.textContent = `Richtig: ${correctAnswers} | Falsch: ${wrongAnswers}`;
+}
 
 // Event-Listener
 saveWordButton.addEventListener('click', saveWord);
