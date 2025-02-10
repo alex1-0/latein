@@ -1,57 +1,35 @@
-/* Light Mode (Standard) */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
+    background-color: #f4f4f4;
     color: #333;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode {
+    background-color: #333;
+    color: #f4f4f4;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 .header {
     display: flex;
-    align-items: center;
-    padding: 10px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.header-spacer {
-    flex-grow: 1; /* Lücke zwischen den Buttons */
-}
-
-.header button {
-    margin-left: 10px;
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.header button:hover {
-    background-color: #218838;
-}
-
-.container {
-    display: flex;
-    justify-content: center;
-    width: 80%;
-    max-width: 1200px;
-    margin: 20px auto;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+    margin-bottom: 20px;
 }
 
 .section {
-    width: 100%;
+    display: none;
 }
 
-h2 {
-    margin-bottom: 20px;
-    color: #333;
+.section.active {
+    display: block;
 }
 
 .input-group {
@@ -61,85 +39,23 @@ h2 {
 label {
     display: block;
     margin-bottom: 5px;
-    color: #555;
 }
 
-.input-field {
+input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-.search-group {
-    margin-top: 30px;
-}
-
-.search-field {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    margin-bottom: 15px;
+    padding: 8px;
+    box-sizing: border-box;
 }
 
 button {
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
+    padding: 10px 15px;
     cursor: pointer;
-    font-size: 16px;
 }
 
-button:hover {
-    background-color: #218838;
-}
-
-#vocabulary-list {
+#wordList {
     margin-top: 20px;
 }
 
-#result {
-    margin-top: 20px;
-    font-weight: bold;
-}
-
-/* Dark Mode */
-body.dark-mode {
-    background-color: #333;
-    color: #f4f4f4;
-}
-
-body.dark-mode .header {
-    background-color: #444;
-}
-
-body.dark-mode .container {
-    background-color: #444;
-    color: #f4f4f4;
-}
-
-body.dark-mode h2,
-body.dark-mode label {
-    color: #f4f4f4;
-}
-
-body.dark-mode .input-field,
-body.dark-mode .search-field {
-    background-color: #555;
-    border-color: #666;
-    color: #f4f4f4;
-}
-
-body.dark-mode button {
-    background-color: #28a745;
-    color: #fff;
-}
-
-body.dark-mode button:hover {
-    background-color: #218838;
+.hidden {
+    display: none;
 }
