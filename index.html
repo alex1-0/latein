@@ -3,50 +3,1089 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vokabeltrainer</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Latein Vokabeltrainer</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --card-border: #333;
+            --accent-color: #bb86fc;
+            --search-bg: #2d2d2d;
+            --search-border: #444;
+            --test-bg: #2a2a2a;
+            --test-card-bg: #252525;
+            --button-hover: #9a67cf;
+            --checkbox-color: #bb86fc;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --card-border: #ddd;
+            --accent-color: #6200ee;
+            --search-bg: #fff;
+            --search-border: #ccc;
+            --test-bg: #f0f0f0;
+            --test-card-bg: #fff;
+            --button-hover: #7c4dff;
+            --checkbox-color: #6200ee;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        h1 {
+            color: var(--accent-color);
+            margin: 0;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        #search {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 1px solid var(--search-border);
+            border-radius: 30px;
+            background-color: var(--search-bg);
+            color: var(--text-color);
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+
+        #search:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.3);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-controls select, .filter-controls button {
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            flex-grow: 1;
+            min-width: 150px;
+        }
+
+        .filter-controls button {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-controls button:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .lesson-header {
+            grid-column: 1 / -1;
+            font-size: 1.5em;
+            margin: 20px 0 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .lesson-header::after {
+            content: "−";
+            font-size: 1.5em;
+        }
+
+        .lesson-header.collapsed::after {
+            content: "+";
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--card-border);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .latin {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+        }
+
+        .stems {
+            font-style: italic;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .translation {
+            margin-bottom: 0;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1em;
+            opacity: 0.7;
+        }
+
+        .highlight {
+            background-color: rgba(187, 134, 252, 0.3);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        /* Test mode styles */
+        .test-container {
+            display: none;
+            background-color: var(--test-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .test-card {
+            background-color: var(--test-card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--card-border);
+            position: relative;
+        }
+
+        .test-question {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .test-answer {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--card-border);
+        }
+
+        .test-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .test-button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .test-button:hover {
+            opacity: 0.9;
+            background-color: var(--button-hover);
+        }
+
+        .test-button.secondary {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+        }
+
+        .test-progress {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .test-results {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .test-results h2 {
+            color: var(--accent-color);
+        }
+
+        .test-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            padding: 15px;
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            min-width: 100px;
+        }
+
+        /* New styles for lesson selection */
+        .selection-container {
+            display: none;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--card-border);
+        }
+
+        .selection-header {
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Lesson Checkbox Styles */
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .lesson-checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .lesson-checkbox {
+            position: absolute;
+            opacity: 0;
+            height: 0;
+            width: 0;
+        }
+
+        .lesson-checkbox-label {
+            position: relative;
+            padding-left: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            height: 40px;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .lesson-checkbox-label:hover {
+            color: var(--accent-color);
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .lesson-checkbox-label:hover .checkmark {
+            border-color: var(--accent-color);
+        }
+
+        .lesson-checkbox:checked ~ .checkmark {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .lesson-checkbox:focus ~ .checkmark {
+            box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.3);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .lesson-checkbox:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .selection-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .selection-button {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .selection-button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+
+        .selection-button.secondary {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+        }
+
+        @media (max-width: 768px) {
+            .vocab-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .test-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .test-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .lesson-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .selection-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
-<body class="dark-mode">
-    <!-- Navigationsleiste -->
-    <nav class="navbar">
-        <div class="nav-buttons">
-            <button id="toggleDictionary">Wörterbuch</button>
-            <button id="toggleQuery">Abfrage</button>
-        </div>
-        <button id="toggleDarkMode" class="dark-mode-toggle">🌞</button>
-    </nav>
-
-    <!-- Container für die Abschnitte -->
+<body>
     <div class="container">
-        <!-- Wörterbuch -->
-        <div id="dictionarySection" class="section">
-            <h2>Wörterbuch</h2>
-            <div class="input-group">
-                <input type="text" id="latinWord" placeholder="Lateinisches Wort">
-                <input type="text" id="stemForms" placeholder="Stammformen">
-                <input type="text" id="translations" placeholder="Übersetzungen">
+        <header>
+            <h1>Latein Vokabeltrainer</h1>
+            <button class="theme-toggle" id="themeToggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <span>Light Mode</span>
+            </button>
+        </header>
+
+        <div class="search-container">
+            <input type="text" id="search" placeholder="Suche nach Vokabeln (diakritische Zeichen werden ignoriert)...">
+            <div class="filter-controls">
+                <select id="lessonFilter">
+                    <option value="all">Alle Lektionen</option>
+                    <!-- Lesson options will be added dynamically -->
+                </select>
+                <select id="typeFilter">
+                    <option value="all">Alle Wortarten</option>
+                    <option value="noun">Nomen</option>
+                    <option value="verb">Verben</option>
+                    <option value="adjective">Adjektive</option>
+                    <option value="adverb">Adverbien</option>
+                    <option value="conjunction">Konjunktionen</option>
+                    <option value="pronoun">Pronomen</option>
+                    <option value="preposition">Präpositionen</option>
+                </select>
+                <button id="startTestBtn">Test starten</button>
             </div>
-            <button id="saveWord">Vokabel speichern</button>
-            <input type="text" id="search" placeholder="Suche...">
-            <div id="vocabularyList"></div>
         </div>
 
-        <!-- Abfrage -->
-        <div id="querySection" class="section hidden">
-            <h2>Abfrage</h2>
-            <div class="input-group">
-                <input type="text" id="queryLatinWord" placeholder="Lateinisches Wort" disabled>
-                <input type="text" id="queryStemForms" placeholder="Stammformen">
-                <input type="text" id="queryTranslations" placeholder="Übersetzungen">
+        <div class="selection-container" id="lessonSelection">
+            <h2 class="selection-header">Lektionen auswählen</h2>
+            <div class="lesson-grid" id="lessonCheckboxes">
+                <!-- Lesson checkboxes will be added here dynamically -->
             </div>
-            <button id="checkAnswer">Antwort überprüfen</button>
-            <div id="result"></div>
-            <div id="score">Richtig: 0 | Falsch: 0</div>
+            <div class="selection-buttons">
+                <button class="selection-button" id="selectAllBtn">Alle auswählen</button>
+                <button class="selection-button secondary" id="deselectAllBtn">Alle abwählen</button>
+                <button class="selection-button" id="startSelectedTestBtn">Test mit ausgewählten Lektionen starten</button>
+            </div>
+        </div>
+
+        <div class="vocab-grid" id="vocabGrid">
+            <!-- Vocabulary cards will be added here dynamically -->
+        </div>
+
+        <div class="test-container" id="testContainer">
+            <div class="test-header">
+                <h2>Vokabeltest</h2>
+                <button class="test-button secondary" id="exitTestBtn">Test beenden</button>
+            </div>
+            <div id="testContent">
+                <!-- Test questions will be added here dynamically -->
+            </div>
+            <div class="test-actions">
+                <button class="test-button secondary" id="prevQuestionBtn" disabled>Zurück</button>
+                <button class="test-button" id="showAnswerBtn">Antwort zeigen</button>
+                <button class="test-button" id="nextQuestionBtn">Weiter</button>
+            </div>
+            <div class="test-progress" id="testProgress">
+                Frage 1 von 10
+            </div>
+            <div class="test-results" id="testResults">
+                <h2>Testergebnis</h2>
+                <div class="test-stats">
+                    <div class="stat-box">
+                        <h3>Richtig</h3>
+                        <p id="correctCount">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Falsch</h3>
+                        <p id="wrongCount">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Übersprungen</h3>
+                        <p id="skippedCount">0</p>
+                    </div>
+                </div>
+                <button class="test-button" id="restartTestBtn">Neuen Test starten</button>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="vocabulary.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Set initial theme based on system preference or localStorage
+            if (localStorage.getItem('theme') === 'light' || 
+                (!localStorage.getItem('theme') && !prefersDarkScheme.matches)) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeToggle.querySelector('span').textContent = 'Dark Mode';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.querySelector('span').textContent = 'Light Mode';
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.querySelector('span').textContent = 'Dark Mode';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.querySelector('span').textContent = 'Light Mode';
+                }
+            });
+
+            // Function to remove diacritics
+            function removeDiacritics(str) {
+                return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            }
+
+            // Filter and display vocabulary
+            const vocabGrid = document.getElementById('vocabGrid');
+            const searchInput = document.getElementById('search');
+            const lessonFilter = document.getElementById('lessonFilter');
+            const typeFilter = document.getElementById('typeFilter');
+            const startTestBtn = document.getElementById('startTestBtn');
+            const lessonSelection = document.getElementById('lessonSelection');
+            const lessonCheckboxes = document.getElementById('lessonCheckboxes');
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const deselectAllBtn = document.getElementById('deselectAllBtn');
+            const startSelectedTestBtn = document.getElementById('startSelectedTestBtn');
+            const testContainer = document.getElementById('testContainer');
+            const testContent = document.getElementById('testContent');
+            const exitTestBtn = document.getElementById('exitTestBtn');
+            const prevQuestionBtn = document.getElementById('prevQuestionBtn');
+            const showAnswerBtn = document.getElementById('showAnswerBtn');
+            const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+            const testProgress = document.getElementById('testProgress');
+            const testResults = document.getElementById('testResults');
+            const correctCount = document.getElementById('correctCount');
+            const wrongCount = document.getElementById('wrongCount');
+            const skippedCount = document.getElementById('skippedCount');
+            const restartTestBtn = document.getElementById('restartTestBtn');
+            
+            // Test state variables
+            let testQuestions = [];
+            let currentQuestionIndex = 0;
+            let testStats = {
+                correct: 0,
+                wrong: 0,
+                skipped: 0
+            };
+            let userAnswers = [];
+            let showAnswerState = false;
+            
+            // Get all unique lessons
+            const lessons = [...new Set(vocabulary.filter(item => item.type === 'lesson').map(item => item.number))];
+            
+            // Populate lesson filter and checkboxes
+            function populateLessonControls() {
+                lessonFilter.innerHTML = '<option value="all">Alle Lektionen</option>';
+                lessonCheckboxes.innerHTML = '';
+                
+                lessons.forEach(lesson => {
+                    // Add to lesson filter dropdown
+                    const option = document.createElement('option');
+                    option.value = lesson;
+                    option.textContent = `Lektion ${lesson}`;
+                    lessonFilter.appendChild(option);
+                    
+                    // Add to lesson checkboxes
+                    const checkboxId = `lesson-${lesson}`;
+                    const checkboxContainer = document.createElement('div');
+                    checkboxContainer.className = 'lesson-checkbox-container';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = checkboxId;
+                    checkbox.className = 'lesson-checkbox';
+                    checkbox.value = lesson;
+                    checkbox.checked = false;
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = checkboxId;
+                    label.className = 'lesson-checkbox-label';
+                    label.textContent = `Lektion ${lesson}`;
+                    
+                    const checkmark = document.createElement('span');
+                    checkmark.className = 'checkmark';
+                    
+                    label.prepend(checkmark);
+                    checkboxContainer.appendChild(checkbox);
+                    checkboxContainer.appendChild(label);
+                    lessonCheckboxes.appendChild(checkboxContainer);
+                });
+            }
+            
+            // Function to determine word type
+            function getWordType(word) {
+                if (!word.latin) return 'other';
+                
+                // Check for verbs
+                if (word.stems && word.stems.includes(",") && 
+                    (word.latin.endsWith("re") || word.latin.endsWith("ri"))) {
+                    return 'verb';
+                }
+                
+                // Check for nouns
+                if (word.stems && (word.stems.includes(" m") || word.stems.includes(" f") || word.stems.includes(" n"))) {
+                    return 'noun';
+                }
+                
+                // Check for adjectives
+                if (word.stems && word.stems.includes(", ") && !word.latin.endsWith("re")) {
+                    return 'adjective';
+                }
+                
+                // Check for adverbs
+                if (word.stems && word.stems.includes("(Adv.)")) {
+                    return 'adverb';
+                }
+                
+                // Check for conjunctions
+                if (word.translation.includes("und") || word.translation.includes("oder") || 
+                    word.translation.includes("aber") || word.translation.includes("dass") || 
+                    word.translation.includes("wenn") || word.translation.includes("weil")) {
+                    return 'conjunction';
+                }
+                
+                // Check for pronouns
+                if (word.latin === "ego" || word.latin === "tū" || word.latin === "nōs" || 
+                    word.latin === "vōs" || word.latin === "is" || word.latin === "hic" || 
+                    word.latin === "ille" || word.latin === "quis" || word.latin === "quī") {
+                    return 'pronoun';
+                }
+                
+                // Check for prepositions
+                if (word.stems && (word.stems.includes("(m. Akk.)") || word.stems.includes("(m. Abl.)"))) {
+                    return 'preposition';
+                }
+                
+                return 'other';
+            }
+            
+            // Function to highlight search terms
+            function highlightText(text, searchTerm) {
+                if (!searchTerm || !text) return text;
+                
+                // Remove diacritics for matching but keep original for display
+                const normalizedText = removeDiacritics(text);
+                const normalizedSearch = removeDiacritics(searchTerm);
+                
+                const regex = new RegExp(normalizedSearch, 'gi');
+                const matches = [...normalizedText.matchAll(regex)];
+                
+                if (matches.length === 0) return text;
+                
+                let result = '';
+                let lastIndex = 0;
+                
+                matches.forEach(match => {
+                    const matchStart = match.index;
+                    const matchEnd = matchStart + match[0].length;
+                    
+                    // Add text before match
+                    result += text.substring(lastIndex, matchStart);
+                    
+                    // Add highlighted match (using original characters)
+                    result += `<span class="highlight">${text.substring(matchStart, matchEnd)}</span>`;
+                    
+                    lastIndex = matchEnd;
+                });
+                
+                // Add remaining text
+                result += text.substring(lastIndex);
+                
+                return result;
+            }
+            
+            // Function to filter and display vocabulary
+            function displayVocabulary() {
+                const searchTerm = removeDiacritics(searchInput.value.toLowerCase());
+                const selectedLesson = lessonFilter.value;
+                const selectedType = typeFilter.value;
+                
+                vocabGrid.innerHTML = '';
+                
+                let currentLesson = 0;
+                let hasResults = false;
+                
+                vocabulary.forEach(item => {
+                    if (item.type === 'lesson') {
+                        currentLesson = item.number;
+                        return;
+                    }
+                    
+                    // Skip if not matching lesson filter
+                    if (selectedLesson !== 'all' && currentLesson !== parseInt(selectedLesson)) {
+                        return;
+                    }
+                    
+                    // Skip if not matching type filter
+                    const wordType = getWordType(item);
+                    if (selectedType !== 'all' && wordType !== selectedType) {
+                        return;
+                    }
+                    
+                    // Skip if not matching search term
+                    const latin = item.latin || '';
+                    const stems = item.stems || '';
+                    const translation = item.translation || '';
+                    
+                    if (searchTerm && 
+                        !removeDiacritics(latin.toLowerCase()).includes(searchTerm) && 
+                        !removeDiacritics(stems.toLowerCase()).includes(searchTerm) && 
+                        !removeDiacritics(translation.toLowerCase()).includes(searchTerm)) {
+                        return;
+                    }
+                    
+                    // Add lesson header if first item in lesson
+                    if (!hasResults || document.querySelector(`.lesson-${currentLesson}`) === null) {
+                        const lessonHeader = document.createElement('h2');
+                        lessonHeader.className = `lesson-header lesson-${currentLesson}`;
+                        lessonHeader.textContent = `Lektion ${currentLesson}`;
+                        lessonHeader.dataset.lesson = currentLesson;
+                        vocabGrid.appendChild(lessonHeader);
+                        
+                        // Add click handler to toggle lesson
+                        lessonHeader.addEventListener('click', function() {
+                            const lesson = this.dataset.lesson;
+                            const cards = document.querySelectorAll(`.card[data-lesson="${lesson}"]`);
+                            const isCollapsed = this.classList.contains('collapsed');
+                            
+                            cards.forEach(card => {
+                                card.style.display = isCollapsed ? 'block' : 'none';
+                            });
+                            
+                            this.classList.toggle('collapsed');
+                        });
+                    }
+                    
+                    hasResults = true;
+                    
+                    // Create vocabulary card
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.lesson = currentLesson;
+                    
+                    const latinElement = document.createElement('div');
+                    latinElement.className = 'latin';
+                    latinElement.innerHTML = highlightText(latin, searchTerm);
+                    
+                    const stemsElement = document.createElement('div');
+                    stemsElement.className = 'stems';
+                    stemsElement.innerHTML = highlightText(stems, searchTerm);
+                    
+                    const translationElement = document.createElement('p');
+                    translationElement.className = 'translation';
+                    translationElement.innerHTML = highlightText(translation, searchTerm);
+                    
+                    card.appendChild(latinElement);
+                    if (stems) card.appendChild(stemsElement);
+                    card.appendChild(translationElement);
+                    
+                    vocabGrid.appendChild(card);
+                });
+                
+                if (!hasResults) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'no-results';
+                    noResults.textContent = 'Keine Vokabeln gefunden, die den Suchkriterien entsprechen.';
+                    vocabGrid.appendChild(noResults);
+                }
+            }
+            
+            // Function to start test
+            function startTest(selectedLessons = []) {
+                // Hide vocabulary grid and show test container
+                vocabGrid.style.display = 'none';
+                lessonSelection.style.display = 'none';
+                testContainer.style.display = 'block';
+                testResults.style.display = 'none';
+                
+                // Reset test state
+                testQuestions = [];
+                currentQuestionIndex = 0;
+                testStats = { correct: 0, wrong: 0, skipped: 0 };
+                userAnswers = [];
+                showAnswerState = false;
+                
+                // Filter vocabulary for test questions
+                let currentLesson = 0;
+                vocabulary.forEach(item => {
+                    if (item.type === 'lesson') {
+                        currentLesson = item.number;
+                        return;
+                    }
+                    
+                    // Skip if not in selected lessons
+                    if (selectedLessons.length > 0 && !selectedLessons.includes(currentLesson)) {
+                        return;
+                    }
+                    
+                    // Skip lesson markers and empty items
+                    if (item.type === 'lesson' || !item.latin || !item.translation) {
+                        return;
+                    }
+                    
+                    testQuestions.push({
+                        lesson: currentLesson,
+                        latin: item.latin,
+                        stems: item.stems || '',
+                        translation: item.translation,
+                        type: getWordType(item)
+                    });
+                });
+                
+                // Shuffle questions
+                testQuestions = shuffleArray(testQuestions);
+                
+                // Limit to 20 questions if there are many
+                if (testQuestions.length > 20) {
+                    testQuestions = testQuestions.slice(0, 20);
+                }
+                
+                // Display first question
+                displayQuestion();
+            }
+            
+            // Function to shuffle array
+            function shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+            
+            // Function to display current question
+            function displayQuestion() {
+                if (testQuestions.length === 0) {
+                    showTestResults();
+                    return;
+                }
+                
+                const question = testQuestions[currentQuestionIndex];
+                showAnswerState = false;
+                
+                testContent.innerHTML = `
+                    <div class="test-card">
+                        <div class="test-question">
+                            <p>Wie lautet die Übersetzung von:</p>
+                            <h3>${question.latin}</h3>
+                            ${question.stems ? `<p class="stems">${question.stems}</p>` : ''}
+                        </div>
+                        <div class="test-answer" id="testAnswer">
+                            <p><strong>Antwort:</strong> ${question.translation}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Update progress
+                testProgress.textContent = `Frage ${currentQuestionIndex + 1} von ${testQuestions.length}`;
+                
+                // Update button states
+                prevQuestionBtn.disabled = currentQuestionIndex === 0;
+                showAnswerBtn.textContent = 'Antwort zeigen';
+                nextQuestionBtn.textContent = 'Überspringen';
+                
+                // Reset answer display
+                document.getElementById('testAnswer').style.display = 'none';
+            }
+            
+            // Function to show answer
+            function showAnswer() {
+                if (showAnswerState) return;
+                
+                const answerElement = document.getElementById('testAnswer');
+                answerElement.style.display = 'block';
+                showAnswerState = true;
+                showAnswerBtn.textContent = 'Antwort verstecken';
+                nextQuestionBtn.textContent = 'Weiter';
+            }
+            
+            // Function to hide answer
+            function hideAnswer() {
+                if (!showAnswerState) return;
+                
+                const answerElement = document.getElementById('testAnswer');
+                answerElement.style.display = 'none';
+                showAnswerState = false;
+                showAnswerBtn.textContent = 'Antwort zeigen';
+                nextQuestionBtn.textContent = 'Überspringen';
+            }
+            
+            // Function to navigate to next question
+            function nextQuestion() {
+                // Record answer (skipped)
+                if (!showAnswerState) {
+                    testStats.skipped++;
+                    userAnswers.push({
+                        question: testQuestions[currentQuestionIndex],
+                        result: 'skipped'
+                    });
+                }
+                
+                currentQuestionIndex++;
+                
+                if (currentQuestionIndex < testQuestions.length) {
+                    displayQuestion();
+                } else {
+                    showTestResults();
+                }
+            }
+            
+            // Function to navigate to previous question
+            function prevQuestion() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    displayQuestion();
+                }
+            }
+            
+            // Function to show test results
+            function showTestResults() {
+                testContent.style.display = 'none';
+                testProgress.style.display = 'none';
+                document.querySelector('.test-actions').style.display = 'none';
+                testResults.style.display = 'block';
+                
+                correctCount.textContent = testStats.correct;
+                wrongCount.textContent = testStats.wrong;
+                skippedCount.textContent = testStats.skipped;
+            }
+            
+            // Function to exit test mode
+            function exitTest() {
+                testContainer.style.display = 'none';
+                vocabGrid.style.display = 'grid';
+                // Don't show lesson selection here - it will be shown when "Test starten" is clicked
+            }
+            
+            // Event listeners
+            searchInput.addEventListener('input', displayVocabulary);
+            lessonFilter.addEventListener('change', displayVocabulary);
+            typeFilter.addEventListener('change', displayVocabulary);
+            
+            // Test mode event listeners
+            startTestBtn.addEventListener('click', function() {
+                lessonSelection.style.display = 'block';
+                vocabGrid.style.display = 'none';
+            });
+            
+            selectAllBtn.addEventListener('click', function() {
+                document.querySelectorAll('.lesson-checkbox').forEach(checkbox => {
+                    checkbox.checked = true;
+                    // Trigger visual update
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+            });
+            
+            deselectAllBtn.addEventListener('click', function() {
+                document.querySelectorAll('.lesson-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                    // Trigger visual update
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+            });
+            
+            startSelectedTestBtn.addEventListener('click', function() {
+                const selectedLessons = [];
+                document.querySelectorAll('.lesson-checkbox:checked').forEach(checkbox => {
+                    selectedLessons.push(parseInt(checkbox.value));
+                });
+                
+                if (selectedLessons.length === 0) {
+                    alert('Bitte wählen Sie mindestens eine Lektion aus.');
+                    return;
+                }
+                
+                startTest(selectedLessons);
+            });
+            
+            exitTestBtn.addEventListener('click', exitTest);
+            prevQuestionBtn.addEventListener('click', prevQuestion);
+            showAnswerBtn.addEventListener('click', function() {
+                if (showAnswerState) {
+                    hideAnswer();
+                } else {
+                    showAnswer();
+                }
+            });
+            nextQuestionBtn.addEventListener('click', nextQuestion);
+            restartTestBtn.addEventListener('click', function() {
+                testContent.style.display = 'block';
+                testProgress.style.display = 'block';
+                document.querySelector('.test-actions').style.display = 'flex';
+                testResults.style.display = 'none';
+                
+                const selectedLessons = [];
+                document.querySelectorAll('.lesson-checkbox:checked').forEach(checkbox => {
+                    selectedLessons.push(parseInt(checkbox.value));
+                });
+                
+                startTest(selectedLessons);
+            });
+            
+            // Initialize
+            populateLessonControls();
+            displayVocabulary();
+
+            // Update checkbox visuals on change
+            document.querySelectorAll('.lesson-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const checkmark = this.nextElementSibling.querySelector('.checkmark');
+                    if (this.checked) {
+                        checkmark.style.backgroundColor = 'var(--accent-color)';
+                    } else {
+                        checkmark.style.backgroundColor = 'var(--card-bg)';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
