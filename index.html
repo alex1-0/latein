@@ -934,12 +934,10 @@
 
                 document.addEventListener('keyup', function(event) {
                     if (event.key === " ") {  
-                        function() {
-                            if (showAnswerState) {
-                                hideAnswer();
-                            } else {
-                                showAnswer();
-                            }
+                        if (showAnswerState) {
+                            hideAnswer();
+                        } else {
+                            showAnswer();
                         }
                     }
                     if (event.key === "ArrowRight") {
