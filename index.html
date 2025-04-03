@@ -900,6 +900,19 @@
                 }
                 return newArray;
             }
+
+            document.addEventListener('keyup', function(event) {
+                if (event.key === "Space") {
+                        if (showAnswerState) {
+                            hideAnswer();
+                        } else {
+                            showAnswer();
+                        }
+                }
+                if (event.key === "ArrowRight") {
+                    nextQuestion()
+                }
+            });
             
             // Function to display current question
             function displayQuestion() {
@@ -931,19 +944,6 @@
                 prevQuestionBtn.disabled = currentQuestionIndex === 0;
                 showAnswerBtn.textContent = 'Antwort zeigen';
                 nextQuestionBtn.textContent = 'Überspringen';
-
-                document.addEventListener('keyup', function(event) {
-                    if (event.key === " ") {  
-                        if (showAnswerState) {
-                            hideAnswer();
-                        } else {
-                            showAnswer();
-                        }
-                    }
-                    if (event.key === "ArrowRight") {
-                        nextQuestion()
-                    }
-                });
                 
                 // Reset answer display
                 document.getElementById('testAnswer').style.display = 'none';
