@@ -934,13 +934,16 @@
 
                 document.addEventListener('keyup', function(event) {
                     if (event.key === " ") {  
-                        showAnswerBtn.click();
+                        function() {
+                            if (showAnswerState) {
+                                hideAnswer();
+                            } else {
+                                showAnswer();
+                            }
+                        }
                     }
-                });
-
-                document.addEventListener('keyup', function(event) {
                     if (event.key === "ArrowRight") {
-                        nextQuestionBtn.click();
+                        nextQuestion()
                     }
                 });
                 
