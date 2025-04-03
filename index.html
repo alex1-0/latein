@@ -902,7 +902,7 @@
             }
 
             document.addEventListener('keyup', function(event) {
-                if (event.key === " ") {
+                if (event.key === " " || event.key === "Space") {
                     if (showAnswerState) {
                         hideAnswer();
                     } else {
