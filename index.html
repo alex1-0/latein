@@ -540,7 +540,7 @@
                 <button class="test-button" id="showAnswerBtn">Antwort zeigen</button>
                 <button class="test-button wrong" id="wrongAnswerBtn" style="display: none;">Falsch</button>
                 <button class="test-button correct" id="correctAnswerBtn" style="display: none;">Richtig</button>
-                <button class="test-button" id="nextQuestionBtn">Weiter</button>
+                <button class="test-button" id="nextQuestionBtn">Überspringen</button>
             </div>
             <div class="test-progress" id="testProgress">
                 Frage 1 von 10
@@ -986,7 +986,6 @@
                 answerElement.style.display = 'block';
                 showAnswerState = true;
                 showAnswerBtn.textContent = 'Antwort verstecken';
-                nextQuestionBtn.textContent = 'Weiter';
 
                 // Show right/wrong buttons
                 wrongAnswerBtn.style.display = 'inline-block';
@@ -1018,13 +1017,11 @@
                 showAnswerBtn.style.display = 'inline-block';
                 
                 // Record answer (skipped)
-                if (!showAnswerState) {
-                    testStats.skipped++;
-                    userAnswers.push({
-                        question: testQuestions[currentQuestionIndex],
-                        result: 'skipped'
-                    });
-                }
+                testStats.skipped++;
+                userAnswers.push({
+                    question: testQuestions[currentQuestionIndex],
+                    result: 'skipped'
+                });
                 
                 currentQuestionIndex++;
                 
