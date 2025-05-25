@@ -934,10 +934,31 @@
                     }
                 }
                 if (event.key === "ArrowRight") {
-                    nextQuestion()
+                    testStats.skipped++;
+                    userAnswers.push({
+                        question: testQuestions[currentQuestionIndex],
+                        result: 'skipped'
+                    });
+                    nextQuestion();
                 }
                 if (event.key === "ArrowLeft") {
                     prevQuestion()
+                }
+                if (event.key === "F") {
+                    testStats.wrong++;
+                    userAnswers.push({
+                        question: testQuestions[currentQuestionIndex],
+                        result: 'wrong'
+                    });
+                    nextQuestion();
+                }
+                if (event.key === "R") {
+                    testStats.correct++;
+                    userAnswers.push({
+                        question: testQuestions[currentQuestionIndex],
+                        result: 'correct'
+                    });
+                    nextQuestion();
                 }
             });
             
