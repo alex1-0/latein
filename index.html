@@ -1016,13 +1016,6 @@
                 correctAnswerBtn.style.display = 'none';
                 showAnswerBtn.style.display = 'inline-block';
                 
-                // Record answer (skipped)
-                testStats.skipped++;
-                userAnswers.push({
-                    question: testQuestions[currentQuestionIndex],
-                    result: 'skipped'
-                });
-                
                 currentQuestionIndex++;
                 
                 if (currentQuestionIndex < testQuestions.length) {
@@ -1111,7 +1104,15 @@
                     showAnswer();
                 }
             });
-            nextQuestionBtn.addEventListener('click', nextQuestion);
+            nextQuestionBtn.addEventListener('click', function() {
+                testStats.skipped++;
+                userAnswers.push({
+                    question: testQuestions[currentQuestionIndex],
+                    result: 'skipped'
+                });
+                nextQuestion();
+            });
+            
             restartTestBtn.addEventListener('click', function() {
                 testContent.style.display = 'block';
                 testProgress.style.display = 'block';
