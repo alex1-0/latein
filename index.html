@@ -424,6 +424,22 @@
             border: 1px solid var(--card-border);
         }
 
+        .test-button.wrong {
+            background-color: #cf6679;
+        }
+        
+        .test-button.correct {
+            background-color: #4caf50;
+        }
+        
+        .test-button.wrong:hover {
+            background-color: #b00020;
+        }
+        
+        .test-button.correct:hover {
+            background-color: #2e7d32;
+        }
+
         @media (max-width: 768px) {
             .vocab-grid {
                 grid-template-columns: 1fr;
@@ -522,6 +538,8 @@
             <div class="test-actions">
                 <button class="test-button secondary" id="prevQuestionBtn" disabled>Zurück</button>
                 <button class="test-button" id="showAnswerBtn">Antwort zeigen</button>
+                <button class="test-button wrong" id="wrongAnswerBtn" style="display: none;">Falsch</button>
+                <button class="test-button correct" id="correctAnswerBtn" style="display: none;">Richtig</button>
                 <button class="test-button" id="nextQuestionBtn">Weiter</button>
             </div>
             <div class="test-progress" id="testProgress">
@@ -541,6 +559,10 @@
                     <div class="stat-box">
                         <h3>Übersprungen</h3>
                         <p id="skippedCount">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Erfolgsrate</h3>
+                        <p id="successRate">0%</p>
                     </div>
                 </div>
                 <button class="test-button" id="restartTestBtn">Neuen Test starten</button>
@@ -605,6 +627,8 @@
             const wrongCount = document.getElementById('wrongCount');
             const skippedCount = document.getElementById('skippedCount');
             const restartTestBtn = document.getElementById('restartTestBtn');
+            const wrongAnswerBtn = document.getElementById('wrongAnswerBtn');
+            const correctAnswerBtn = document.getElementById('correctAnswerBtn');
             
             // Test state variables
             let testQuestions = [];
@@ -963,6 +987,11 @@
                 showAnswerState = true;
                 showAnswerBtn.textContent = 'Antwort verstecken';
                 nextQuestionBtn.textContent = 'Weiter';
+
+                // Show right/wrong buttons
+                wrongAnswerBtn.style.display = 'inline-block';
+                correctAnswerBtn.style.display = 'inline-block';
+                showAnswerBtn.style.display = 'none';
             }
             
             // Function to hide answer
@@ -974,10 +1003,20 @@
                 showAnswerState = false;
                 showAnswerBtn.textContent = 'Antwort zeigen';
                 nextQuestionBtn.textContent = 'Überspringen';
+
+                // Hide right/wrong buttons
+                wrongAnswerBtn.style.display = 'none';
+                correctAnswerBtn.style.display = 'none';
+                showAnswerBtn.style.display = 'inline-block';
             }
             
             // Function to navigate to next question
             function nextQuestion() {
+                // Hide right/wrong buttons if they're visible
+                wrongAnswerBtn.style.display = 'none';
+                correctAnswerBtn.style.display = 'none';
+                showAnswerBtn.style.display = 'inline-block';
+                
                 // Record answer (skipped)
                 if (!showAnswerState) {
                     testStats.skipped++;
@@ -1014,6 +1053,8 @@
                 correctCount.textContent = testStats.correct;
                 wrongCount.textContent = testStats.wrong;
                 skippedCount.textContent = testStats.skipped;
+
+                document.getElementById('successRate').textContent = Math.round((testStats.correct / testQuestions.length) * 100) + '%';
             }
             
             // Function to exit test mode
@@ -1102,6 +1143,24 @@
                         checkmark.style.backgroundColor = 'var(--card-bg)';
                     }
                 });
+            });
+
+            wrongAnswerBtn.addEventListener('click', function() {
+                testStats.wrong++;
+                userAnswers.push({
+                    question: testQuestions[currentQuestionIndex],
+                    result: 'wrong'
+                });
+                nextQuestion();
+            });
+            
+            correctAnswerBtn.addEventListener('click', function() {
+                testStats.correct++;
+                userAnswers.push({
+                    question: testQuestions[currentQuestionIndex],
+                    result: 'correct'
+                });
+                nextQuestion();
             });
         });
     </script>
