@@ -61,7 +61,7 @@ const vocabulary = [
     { latin: "grātia", stems: "grātiae f", translation: "der Dank; die Gnade" },
     { latin: "iniūria", stems: "iniūriae f", translation: "das Unrecht; die Beleidigung" },
     { latin: "negāre", stems: "negō, negāvī, negātum", translation: "leugnen, verneinen; verweigern" },
-    { latin: "parāre", stems: "rogō, rogāvī, rogātum", translation: "(vor)bereiten, vorhaben; erwerben" },
+    { latin: "parāre", stems: "parō, parāvī, parātum", translation: "(vor)bereiten, vorhaben; erwerben" },
     { latin: "paulō", stems: "", translation: "(um) ein wenig" },
     { latin: "poena", stems: "poenae f", translation: "die Strafe" },
     { latin: "prohibēre", stems: "prohibeō, prohibuī", translation: "abhalten, hindern, verhindern" },
