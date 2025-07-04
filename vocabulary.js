@@ -1,4 +1,4 @@
-const vocabulary = [
+window.vocabulary = [
     { type: "lesson", number: 1 },
     { latin: "adesse", stems: "adsum, adfuī/(affuī)", translation: "da sein; helfen" },
     { latin: "audēre", stems: "audeō, ausus sum", translation: "wagen" },
