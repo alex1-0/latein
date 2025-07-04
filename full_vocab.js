@@ -1,4 +1,4 @@
-window.vocabulary = [
+window.fullVocabulary = [
     { type: "lesson", number: 1 },
     { latin: "ecce", stems: "", translation: "Siehe! Schaut!" },
     { latin: "ibi", stems: "Adv.", translation: "dort" },
