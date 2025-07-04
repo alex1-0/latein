@@ -1193,6 +1193,23 @@
                 nextQuestion();
             });
         });
+
+        let usingFull = false;
+
+        document.getElementById("vocabToggle").addEventListener("click", () => {
+            usingFull = !usingFull;
+    
+            const scriptTag = document.createElement("script");
+            scriptTag.src = usingFull ? "full_vocab.js" : "vocabulary.js";
+            scriptTag.onload = () => {
+                // Du musst hier ggf. Funktionen wie `renderVocabulary()` oder so aufrufen,
+                // je nachdem, wie dein Vokabeltrainer neu gerendert wird.
+                if (typeof renderVocabulary === "function") {
+                    renderVocabulary();
+                }
+            };
+            document.body.appendChild(scriptTag);
+        });
     </script>
 </body>
 </html>
