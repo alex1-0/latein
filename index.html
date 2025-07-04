@@ -593,8 +593,8 @@
             </div>
         </div>
     </div>
-        <script src="vocabulary.js"></script>
-        <script src="full_vocab.js"></script>
+        <script id="vocabScript" src="vocabulary.js"></script>
+        <script src="full_vocab.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Theme toggle functionality
@@ -1162,7 +1162,17 @@
             // Initialize
             populateLessonControls();
             displayVocabulary();
-        
+
+            let usingFullVocab = false;
+
+            vocabToggle.addEventListener("click", () => {
+                usingFullVocab = !usingFullVocab;
+                currentVocabSet = usingFullVocab ? window.fullVocabulary : window.vocabulary;
+                vocabToggle.textContent = usingFullVocab ? "Kernwortschatz" : "Alle Vokabeln";
+                populateLessonControls();
+                displayVocabulary();
+            });
+                    
             // Update checkbox visuals on change
             document.querySelectorAll('.lesson-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function () {
@@ -1192,23 +1202,6 @@
                 });
                 nextQuestion();
             });
-        });
-
-        let usingFull = false;
-
-        document.getElementById("vocabToggle").addEventListener("click", () => {
-            usingFull = !usingFull;
-    
-            const scriptTag = document.createElement("script");
-            scriptTag.src = usingFull ? "full_vocab.js" : "vocabulary.js";
-            scriptTag.onload = () => {
-                // Du musst hier ggf. Funktionen wie `renderVocabulary()` oder so aufrufen,
-                // je nachdem, wie dein Vokabeltrainer neu gerendert wird.
-                if (typeof renderVocabulary === "function") {
-                    renderVocabulary();
-                }
-            };
-            document.body.appendChild(scriptTag);
         });
     </script>
 </body>
